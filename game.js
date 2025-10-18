@@ -1,213 +1,254 @@
-// == HTML ==
-const SZEPTUCH = document.getElementById("szeptuch");
-const WYNIK = document.getElementById("wynik");
-const WARNING = document.getElementById("warning");
-const SHOP = document.getElementById("shop");
-const REBIRTH_SHOP = document.getElementById("rebirth");
-const INFO = document.getElementById("info");
-
-// == GLOBALNE ZMIENNE ==
-const TICKS_IN_SECOND = 10;
-const BASE_CLICK_MULTIPLIER = 0.1;
-const BASE_IDLE_MULTIPLIER = 0.01;
-
-let rebirth_count = 0;
-let wynik = 0;
-let click_power = 1.0;
-let multiplier = 0.0;
-
-let multiplier_items = [
-	0
+var WOJTEK = document.getElementById("szeptuch");
+var STATS = document.getElementById("stats");
+var WARNING = document.getElementById("warning");
+var SHOP = document.getElementById("shop");
+var REBIRTH_BUTTON = document.getElementById("rebirth");
+function weight(w) {
+    return "".concat(w, "ng");
+}
+var ShopItemType;
+(function (ShopItemType) {
+    ShopItemType[ShopItemType["Click"] = 0] = "Click";
+    ShopItemType[ShopItemType["Idle"] = 1] = "Idle";
+    ShopItemType[ShopItemType["Multiplier"] = 2] = "Multiplier";
+})(ShopItemType || (ShopItemType = {}));
+var TICKS_PER_SECOND = 10;
+var SHOP_ITEMS = [
+    {
+        name: "Mrówka",
+        desc: "Mrówka to najmniejsza i najtańsza rzecz jaką możemy nakarmić wojtusia. Nie jest ona odżywcza, ale lepsze to niż nic.",
+        type: ShopItemType.Idle,
+        base_price: 12,
+        img: "assets/idle0.png",
+        effect: 1,
+        count: 0,
+    },
+    {
+        name: "Talerz",
+        desc: "Może i mały, ale przynajmniej nie musisz używać do tego swych dłoni.",
+        type: ShopItemType.Click,
+        base_price: 100,
+        img: "",
+        effect: 10,
+        count: 0,
+    },
+    {
+        name: "Buty",
+        desc: "W końcu nie musisz dostarczać wojtusiowi jedzenia boso niczym Cejrowski.",
+        type: ShopItemType.Multiplier,
+        base_price: 1000,
+        img: "",
+        effect: 10,
+        count: 0,
+    }
 ];
-
-let click_items = [
-	0
+var IDLE_ITEMS = [
+    0,
 ];
-
-let idle_items = [
-	0,
+var CLICK_ITEMS = [
+    1,
 ];
-
-// == BACKEND ==
-// wzór:
-// C(n) = C(0) * r ^ item_count * (item_count + 1) ^ 0,5
-function calculate_price(base_price, item_idx, item_count) {
-	return base_price * Math.pow(1.18, item_count) * Math.pow(item_count + 1, 0,5);
-}
-
-function throw_warning(html) {
-	WARNING.innerHTML = html;
-	WARNING.className = "";
-}
-
-function formatted_weight(grams) {
-	let i = 0;
-	while (grams > 1000) {
-		i++;
-		grams /= 1000;
-	}
-	grams = Number.parseFloat(grams).toFixed(3);
-	switch (i) {
-		case 0:
-			return `${grams}ng`;
-		case 1:
-			return `${grams}g`;
-		case 2:
-			return `${grams}kg`;
-		case 3:
-			return `${grams}t`;
-		case 4:
-			return `${grams}kt`;
-		case 5:
-			return `${grams}Mt`;
-	}
-}
-
-function idle_multiplier() {
-	return BASE_IDLE_MULTIPLIER + multiplier;
-}
-
-function update() {
-	// Backend update
-	let idle_income = 1.0;
-	for (let i = 0; i < idle_items.length; i++) {
-		idle_income = idle_items[i] * Math.pow(10, i);
-	}
-	wynik += idle_income * idle_multiplier();
-	let wynik_display = formatted_weight(wynik);
-	
-	// Update UI
-	WYNIK.innerHTML = `Waga: ${wynik_display}`;
-
-	let per_click = formatted_weight(click_power * (BASE_CLICK_MULTIPLIER + multiplier));
-	let idle_per_second = formatted_weight(idle_income * idle_multiplier() * TICKS_IN_SECOND);
-	INFO.innerHTML = `<i>(per click: ${per_click}, idle income: ${idle_per_second}/s, wskaźnik: x${(idle_multiplier() * 100.0).toFixed(2)})</i>`
-
-}
-
-function buy_idle(idx) {
-	// później będzie czas na sprawdzanie ceny
-	let price = calculate_price(Math.pow(10, idx), idx, idle_items[idx]);
-	if (Math.abs(wynik - price) <= 0) {
-		console.log(wynik, price);
-		throw_warning(`Nie stać cię na zakup! Brakuje ci ${formatted_weight(price - wynik)}`);
-	} else {
-		wynik -= price;
-		wynik = Math.abs(wynik);
-		idle_items[idx]++;
-		update_shops();
-	}
-}
-function buy_click(idx) {
-	let price = calculate_price(Math.pow(18, idx), idx, click_items[idx]);
-	if (Math.abs(wynik - price) <= 0) {
-		console.log(wynik, price);
-		throw_warning(`Nie stać cię na zakup! Brakuje ci ${formatted_weight(price - wynik)}`);
-	} else {
-		wynik -= price;
-		wynik = Math.abs(wynik);
-		click_items[idx]++;
-		click_power += Math.pow(10, idx);
-		update_shops();
-	}
-}
-function buy_multiplier(idx) {
-	console.log(idx);
-	let price = calculate_price(Math.pow(14, idx), idx, multiplier_items[idx]);
-	if (Math.abs(wynik - price) <= 0) {
-		throw_warning(`Nie stać cię na zakup! Brakuje ci ${formatted_weight(price - wynik)}`);
-	} else {
-		wynik -= price;
-		wynik = Math.abs(wynik);
-		multiplier_items[idx]++;
-		multiplier += Math.pow(0.01, idx + 1) / 100;
-		update_shops();
-	}
-}
-
-// == SETUP ==
-SZEPTUCH.onclick = function() {
-	wynik += click_power * (BASE_CLICK_MULTIPLIER + multiplier);
-	SZEPTUCH.src = "assets/szeptuch-jedzenie.png";
-	setTimeout(function() {
-		SZEPTUCH.src = "assets/szeptuch.png";
-	}, 300);
+var MULTIPLIER_ITEMS = [
+    2
+];
+var gamestate = {
+    rebirth_count: 0,
+    wynik: 0,
+    last_played: Date.now(),
+    items: [],
 };
-
-function update_shops() {
-	let cardtype_idx_count = [0, 0, 0];
-	// ustawiamy sklep z rzeczami dla idle
-	for (let i = 1; i < SHOP.children.length; i++) {
-		let card = SHOP.children[i];
-		let button = card.querySelector(".shop-buy");
-		let desc = card.querySelector("p");
-		let cardtype = card.getAttribute("cardtype");
-		if (cardtype === "idle") {
-			let cost = formatted_weight(calculate_price(Math.pow(10, cardtype_idx_count[0]), cardtype_idx_count[0], idle_items[cardtype_idx_count[0]]));
-			switch (cardtype_idx_count[0]) {
-				case 0:
-					let value = formatted_weight(1.0 * idle_multiplier() * TICKS_IN_SECOND);
-					desc.innerHTML = `Koszt: ${cost} | Efekt: idle income +${value} | Posiadane: ${idle_items[0]}`
-					break;
-			}
-			button.onclick = function() {
-				buy_idle(cardtype_idx_count[0] - 1);
-			}
-			cardtype_idx_count[0]++;
-		} else if (cardtype === "multiplier") {
-			let cost = formatted_weight(calculate_price(Math.pow(14, cardtype_idx_count[1]), cardtype_idx_count[1], multiplier_items[cardtype_idx_count[1]]));
-			switch (cardtype_idx_count[1]) {
-				case 0:
-					let w = Math.pow(10, cardtype_idx_count[1]);
-					desc.innerHTML = `Koszt: ${cost} | Efekt: +${w}% do wskaźnika | Kupiono: ${multiplier_items[0]} razy`
-					break;
-			}
-			button.onclick = function() {
-				buy_multiplier(cardtype_idx_count[1] - 1);
-			}
-			cardtype_idx_count[1]++;
-		} else if (cardtype === "click") {
-			let cost = formatted_weight(calculate_price(Math.pow(18, cardtype_idx_count[2]), cardtype_idx_count[2], click_items[cardtype_idx_count[2]]));
-			switch (cardtype_idx_count[2]) {
-				case 0:
-					let w = formatted_weight(1.00 * BASE_CLICK_MULTIPLIER);
-					desc.innerHTML = `Koszt: ${cost} | Efekt: +${w} per click | Kupiono: ${click_items[0]} razy`;
-					break;
-			}
-			button.onclick = function() {
-				buy_click(cardtype_idx_count[2] - 1);
-			}
-			cardtype_idx_count[2]++;
-		}
-	}
+var local_click_power = 1;
+var local_idle_income = 0;
+var local_multiplier = 100;
+function setup_shop() {
+    SHOP.innerHTML = "";
+    var _loop_1 = function (i) {
+        var card = document.createElement("div");
+        card.className = "shop-card";
+        card.id = "shop-card-".concat(i);
+        var ccolumn = document.createElement("div");
+        ccolumn.className = "shop-card-column";
+        var img = document.createElement("img");
+        if (SHOP_ITEMS[i].img != "") {
+            img.src = SHOP_ITEMS[i].img;
+        }
+        else {
+            img.src = "assets/favicon.jpg";
+        }
+        ccolumn.appendChild(img);
+        var shop_card_text = document.createElement("div");
+        shop_card_text.className = "shop-card-text";
+        var h2 = document.createElement("h2");
+        h2.innerHTML = SHOP_ITEMS[i].name;
+        shop_card_text.appendChild(h2);
+        var desc = document.createElement("i");
+        desc.className = "shop-card-text-desc";
+        desc.innerText = "\"".concat(SHOP_ITEMS[i].desc, "\"");
+        shop_card_text.appendChild(desc);
+        var effect = document.createElement("p");
+        if (SHOP_ITEMS[i].type == ShopItemType.Click) {
+            if (SHOP_ITEMS[i].count == 0) {
+                effect.innerHTML = "<p>Efekt: +".concat(weight(SHOP_ITEMS[i].effect), " per click | Dost\u0119pne: Wyprzedane</p>");
+            }
+            else {
+                effect.innerHTML = "<p>Efekt: +".concat(weight(SHOP_ITEMS[i].effect), " per click | Dost\u0119pne: 1</p>");
+            }
+        }
+        else if (SHOP_ITEMS[i].type == ShopItemType.Multiplier) {
+            if (SHOP_ITEMS[i].count == 0) {
+                effect.innerHTML = "<p>Efekt: +".concat(weight(SHOP_ITEMS[i].effect), "% do wska\u017Anika | Dost\u0119pne: Wyprzedane</p>");
+            }
+            else {
+                effect.innerHTML = "<p>Efekt: +".concat(weight(SHOP_ITEMS[i].effect), "% do wska\u017Anika | Dost\u0119pne: 1</p>");
+            }
+        }
+        else {
+            effect.className = "shop-card-text-effect";
+            effect.innerHTML = "Efekt: +".concat(weight(SHOP_ITEMS[i].effect * TICKS_PER_SECOND), " na sekund\u0119 | Posiadane: ").concat(SHOP_ITEMS[i].count);
+        }
+        shop_card_text.appendChild(effect);
+        ccolumn.appendChild(shop_card_text);
+        var bbutton = document.createElement("button");
+        bbutton.className = "shop-card-buy";
+        bbutton.innerHTML = "1x<br>(".concat(weight(get_price(SHOP_ITEMS[i].base_price, SHOP_ITEMS[i].count)), ")");
+        bbutton.onclick = function () {
+            buy(i);
+        };
+        ccolumn.appendChild(bbutton);
+        card.appendChild(ccolumn);
+        SHOP.appendChild(card);
+    };
+    for (var i = 0; i < SHOP_ITEMS.length; i++) {
+        _loop_1(i);
+    }
 }
-
-// ustawiamy sklep ogólnie (by dało się z nim prowadzić interakcje (pisałem ten komentarz 4 razy btw))
-document.getElementById("rebirth-toggle").onclick = function() {
-	if (REBIRTH_SHOP.className == "hidden") {
-		REBIRTH_SHOP.className = "";
-		REBIRTH_SHOP.querySelector("p").innerHTML = `Narazie tu nic nie ma (ale coś zrobię, pozdro :D)`;
-		shop.className = "hidden";
-	} else {
-		REBIRTH_SHOP.className = "hidden";
-	}
+function update_shop_part(idx) {
+    var card = SHOP.querySelector("#shop-card-".concat(idx));
+    var button = card.querySelector(".shop-card-buy");
+    var effects = card.querySelector(".shop-card-text-effects");
+    if (SHOP_ITEMS[idx].type == ShopItemType.Click) {
+        if (SHOP_ITEMS[idx].count == 0) {
+            effects.innerHTML = "Efekt: +".concat(weight(SHOP_ITEMS[idx].effect), " per click | Dost\u0119pne: 1");
+        }
+        else {
+            effects.innerHTML = "Efekt: +".concat(weight(SHOP_ITEMS[idx].effect), " per click | Dost\u0119pne: Wyprzedane");
+        }
+    }
+    else if (SHOP_ITEMS[idx].type == ShopItemType.Multiplier) {
+        if (SHOP_ITEMS[idx].count == 0) {
+            effects.innerHTML = "Efekt: +".concat(SHOP_ITEMS[idx].effect, "% do wska\u017Anika | Dost\u0119pne: 1");
+        }
+        else {
+            effects.innerHTML = "Efekt: +".concat(SHOP_ITEMS[idx].effect, "% do wska\u017Anika | Dost\u0119pne: Wyprzedane");
+        }
+    }
+    else {
+        effects.innerHTML = "Efekt: +".concat(weight(SHOP_ITEMS[idx].effect * TICKS_PER_SECOND), " na sekund\u0119 | Posiadane: ").concat(SHOP_ITEMS[idx].count);
+    }
+    button.innerHTML = "1x<br>(".concat(weight(get_price(SHOP_ITEMS[idx].base_price, SHOP_ITEMS[idx].count)), ")");
 }
-document.getElementById("shop-toggle").onclick = function() {
-	if (SHOP.className == "hidden") {
-		SHOP.className = "";
-		REBIRTH_SHOP.className = "hidden";
-	} else {
-		SHOP.className = "hidden";
-	}
+function update_shop_full() {
+    for (var i = 0; i < SHOP_ITEMS.length; i++) {
+        update_shop_part(i);
+    }
 }
-
-// == START ==
-// każdy "tick" ma 100ms aka 0.1s
-update_shops();
-setInterval(update, 1000 / TICKS_IN_SECOND);
-
-document.body.onmousedown = function() {
-	if (WARNING.className != "hidden") {
-		WARNING.className = "hidden";
-	}
+function get_price(base_price, item_count) {
+    return base_price * (Math.pow(118, item_count) / 100) * (Math.pow(item_count + 1, 5) / 10);
 }
+function throw_warning(msg) {
+    if (WARNING != null) {
+        WARNING.className = "";
+        WARNING.innerHTML = msg;
+    }
+    else {
+        alert("z jakiegoś powodu nie ma elementu o id #warning");
+    }
+}
+function multiplier() {
+    var toret = 100;
+    for (var i = 0; i < MULTIPLIER_ITEMS.length; i++) {
+        toret += SHOP_ITEMS[IDLE_ITEMS[i]].count * SHOP_ITEMS[IDLE_ITEMS[i]].effect;
+    }
+    return toret;
+}
+function get_idleincome() {
+    var toret = 0;
+    for (var i = 0; i < IDLE_ITEMS.length; i++) {
+        toret += SHOP_ITEMS[IDLE_ITEMS[i]].count * SHOP_ITEMS[IDLE_ITEMS[i]].effect;
+    }
+    toret *= multiplier();
+    return toret / 100;
+}
+function get_idleincome_per_second() {
+    return get_idleincome() / TICKS_PER_SECOND;
+}
+function get_clickincome() {
+    var toret = 1;
+    for (var i = 0; i < CLICK_ITEMS.length; i++) {
+        toret += SHOP_ITEMS[CLICK_ITEMS[i]].count * SHOP_ITEMS[CLICK_ITEMS[i]].effect;
+    }
+    toret *= multiplier();
+    return toret / 100;
+}
+function buy(idx) {
+    buyitem(SHOP_ITEMS[idx]);
+}
+function buyitem(item) {
+    var price = get_price(item.base_price, item.count);
+    if (gamestate.wynik < price) {
+        throw_warning("Nie sta\u0107 ci\u0119 na zakup wybranego przedmiotu! Brakuje ci ".concat(weight(gamestate.wynik - price)));
+    }
+    else if (item.count == 1 && item.type != ShopItemType.Click) {
+        throw_warning("Ten przedmiot już został zakupiony.");
+    }
+    else {
+        gamestate.wynik -= price;
+        item.count++;
+    }
+}
+function update_expensive() {
+    local_click_power = get_clickincome();
+    local_idle_income = get_idleincome();
+    local_multiplier = multiplier();
+    if (STATS != null) {
+        STATS.querySelector("#stat-perclick").innerHTML = "".concat(weight(local_click_power), "<br>na klikni\u0119cie");
+        STATS.querySelector("#stat-idleincome").innerHTML = "".concat(weight(local_idle_income * TICKS_PER_SECOND), "<br>na sekund\u0119");
+        STATS.querySelector("#stat-multiplier").innerHTML = "".concat(local_multiplier / 100, "%");
+    }
+    else {
+        alert("element o id #stats nie istnieje, a musi");
+        return;
+    }
+}
+function update_weight() {
+    if (STATS != null) {
+        STATS.querySelector("#stat-wynik").innerHTML = weight(gamestate.wynik);
+    }
+    else {
+        alert("element o id #stats nie istnieje, a musi");
+        return;
+    }
+}
+function tick() {
+    gamestate.wynik += local_idle_income;
+    update_weight();
+}
+update_expensive();
+setup_shop();
+setInterval(tick, 1000 / TICKS_PER_SECOND);
+WOJTEK.onclick = function () {
+    gamestate.wynik += (local_click_power * local_multiplier) / 100;
+    WOJTEK.src = "assets/szeptuch-jedzenie.png";
+    setTimeout(function () {
+        WOJTEK.src = "assets/szeptuch.png";
+    }, 300);
+};
+var button = document.querySelector("#shop-toggle");
+button.onclick = function () {
+    if (SHOP.className == "") {
+        SHOP.className = "hidden";
+    }
+    else {
+        SHOP.className = "";
+    }
+};
