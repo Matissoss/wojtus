@@ -114,6 +114,8 @@ body {
 	margin-right: auto;
 }
 #footer img {
+	position: relative;
+	z-index: 4;
 	margin: auto;
 	width: 5vw;
 	height: 5vw;
@@ -151,18 +153,27 @@ body {
 		height: 4vh;
 	}
 	#szeptuch {
-		width: 50vw;
-		height: 55vh;
+		width: 35vw;
+		height: 40vh;
+	}
+	#szeptuch:active {
+		width: 35vw;
+		height: 37vh;
 	}
 	#footer img {
 		width: 6vh;
 		height: 6vh;
 	}
+	#footer img:hover {
+		width: 6vh;
+		height: 6vh;
+	}
 	#shop {
+		position: absolute;
+		inset: 0;
+		margin: auto;
 		width: 90vw;
-		height: 70vh;
-		margin-bottom: 0;
-		margin-top: auto;
+		height: 59vh;
 	}
 	#szeptuch:active {
 		height: 50vh;
