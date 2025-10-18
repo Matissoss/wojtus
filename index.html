@@ -2,15 +2,17 @@
 
 <html lang="pl">
 	<head>
-		<title>gra o szeptuchu</title>
+		<title>Gra o Wojtku</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link href="main.css" rel="stylesheet">
+		<link href="assets/favicon.jpg" rel="icon">
 		<meta charset="UTF-8">
 	</head>
 	<body>
 		<!-- TOPBAR --!>
 		<div id="topbar">
 			<button id="shop-toggle">otwórz/zamknij sklep</button>
+			<button id="rebirth-toggle">otwórz/zamknij menu rebirthów</button>
 		</div>
 		<!-- UI WYNIKU --!>
 		<div>
@@ -20,46 +22,45 @@
 		<!-- DO KLIKANIA --!>
 		<img src="assets/szeptuch.png" id="szeptuch">
 		<!-- IDLE UI --!>
+		<div id="rebirth" class="hidden">
+			<h1>Rebirthy</h1>
+			<p id="rebirth-msg"></p>
+			<button id="rebirth-button">Rebirth</button>
+		</div>
 		<div id="shop" class="hidden">
 			<h1 style="color:white;text-align:center;margin:0;">Sklep</h1>
-			<div id='idle-shop'>
-				<div class="shop-card">
-					<div class="shop-card-row">
-						<img src="assets/idle0.png" class="shop-icon">
-						<div class="shop-text">
-							<h2 style="margin:0">Mrówka</h2>
-							<p class="shop-text-desc">Koszt: 67ng | Efekt: +0.01ng | Posiadane: 2137</p>
-							<hr>
-							<p>Mrówka to najmniejsza i najtańsza rzecz jaką możemy nakarmić wojtusia. Nie jest ona odżywcza, ale lepsze to niż nic.</p>
-						</div>
-						<button class="shop-buy">1x</button>
+			<div class="shop-card" cardtype="idle">
+				<div class="shop-card-row">
+					<img src="assets/idle0.png" class="shop-icon">
+					<div class="shop-text">
+						<h2 style="margin:0">Mrówka</h2>
+						<p class="shop-text-desc">Koszt: 67ng | Efekt: +0.01ng | Posiadane: 2137</p>
+						<hr>
+						<p>Mrówka to najmniejsza i najtańsza rzecz jaką możemy nakarmić wojtusia. Nie jest ona odżywcza, ale lepsze to niż nic.</p>
 					</div>
+					<button class="shop-buy">1x</button>
 				</div>
 			</div>
-			<div id='multiplier-shop'>
-				<div class="shop-card">
-					<div class="shop-card-row">
-						<div class="shop-text">
-							<h2 style="margin:0">Dodaj do multipliera 1% (nazwa do wymyślenia)</h2>
-							<p class="shop-text-desc">Koszt: 67ng | Efekt: +0.01ng | Posiadane: 2137</p>
-							<hr>
-							<p>Nie jestem kreatywny akurat teraz, więc nie wiem jak inaczej to nazwać. Tak czy inaczej to coś dodaje 1% do wskaźnika dla idlerów.</p>
-						</div>
-						<button class="shop-buy">1x</button>
+			<div class="shop-card" cardtype="multiplier">
+				<div class="shop-card-row">
+					<div class="shop-text">
+						<h2 style="margin:0">Dodaj do multipliera 1% (nazwa do wymyślenia)</h2>
+						<p class="shop-text-desc">Koszt: 67ng | Efekt: +0.01ng | Posiadane: 2137</p>
+						<hr>
+						<p>Nie jestem kreatywny akurat teraz, więc nie wiem jak inaczej to nazwać. Tak czy inaczej to coś dodaje 1% do wskaźnika dla idlerów.</p>
 					</div>
+					<button class="shop-buy">1x</button>
 				</div>
 			</div>
-			<div id='click-shop'>
-				<div class="shop-card">
-					<div class="shop-card-row">
-						<div class="shop-text">
-							<h2 style="margin:0">Powiększ dłoń</h2>
-							<p class="shop-text-desc">Koszt: 67ng | Efekt: +0.01ng | Posiadane: 2137</p>
-							<hr>
-							<p>Może i najgorszy wybór, by przynosić wojtusiowi jedzenie, ale przynajmniej wymysł natury, a nie wymysł człowieka.<br>Nie stać cię na coś innego, ale chcesz dawać wojtusiowi więcej jedzenia? Jeśli tak, to kup to teraz!</p>
-						</div>
-						<button class="shop-buy">1x</button>
+			<div class="shop-card" cardtype="click">
+				<div class="shop-card-row">
+					<div class="shop-text">
+						<h2 style="margin:0">Powiększ dłoń</h2>
+						<p class="shop-text-desc">Koszt: 67ng | Efekt: +0.01ng | Posiadane: 2137</p>
+						<hr>
+						<p>Może i najgorszy wybór, by przynosić wojtusiowi jedzenie, ale przynajmniej wymysł natury, a nie wymysł człowieka.<br>Nie stać cię na coś innego, ale chcesz dawać wojtusiowi więcej jedzenia? Jeśli tak, to kup to teraz!</p>
 					</div>
+					<button class="shop-buy">1x</button>
 				</div>
 			</div>
 		</div>

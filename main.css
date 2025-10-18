@@ -1,5 +1,6 @@
 body {
 	background-color: teal;
+	color: white;
 	overflow: hidden;
 }
 #wynik {
@@ -9,6 +10,7 @@ body {
 	text-align: center;
 	margin: 0 auto;
 }
+
 #szeptuch {
 	width: 10vw;
 	height: 25vw;
@@ -24,7 +26,6 @@ body {
 	width: 10vw;
 	height: 22vw;
 }
-
 
 #topbar {
 	width: 100vw;
@@ -63,7 +64,7 @@ body {
  * ===========
  */
 
-#shop {
+#shop, #rebirth {
 	overflow: scroll;
 	scrollbar-color: white white;
 	scrollbar-width: auto;
@@ -78,6 +79,7 @@ body {
 	display: flex;
 	flex-direction: column;
 
+	color: black;
 	background-color: gray;
 }
 
@@ -131,6 +133,13 @@ body {
 		height: 40vh;
 		transition: 0.05s all;
 	}
+	#szeptuch:active {
+		width: 34vw;
+		height: 35vh;
+	}
+	.shop-card {
+		width: 75%;
+	}
 	.shop-card-row {
 		flex-direction: column;
 	}
@@ -138,25 +147,24 @@ body {
 		margin: auto;
 		width: 25vh;
 	}
+	#wynik {
+		font-size: 3.5vh;
+	}
 	#shop {
 		width: 96vw;
-		height: 90vh;
-		top: 7.5vh;
+		height: 80vh;
+		top: 10vh;
 	}
 	.shop-text-desc {
 		font-weight: 1000;
 	}
 	.shop-card button {
 		width: 95%;
-		height: 15vh;
+		height: 10vh;
 		font-size: 150%;
 		margin: 2vh auto;
 	}
 	.shop-text {
-		font-size: 115%;
-	}
-	#szeptuch:active {
-		width: 34vw;
-		height: 25vh;
+		font-size: 105%;
 	}
 }
