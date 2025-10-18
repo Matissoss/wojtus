@@ -88,18 +88,18 @@ function setup_shop() {
         var effect = document.createElement("p");
         if (SHOP_ITEMS[i].type == ShopItemType.Click) {
             if (SHOP_ITEMS[i].count == 0) {
-                effect.innerHTML = "<p>Efekt: +".concat(weight(SHOP_ITEMS[i].effect), " per click | Dost\u0119pne: Wyprzedane</p>");
+                effect.innerHTML = "<p>Efekt: +".concat(weight(SHOP_ITEMS[i].effect), " per click | Dost\u0119pne: 1</p>");
             }
             else {
-                effect.innerHTML = "<p>Efekt: +".concat(weight(SHOP_ITEMS[i].effect), " per click | Dost\u0119pne: 1</p>");
+                effect.innerHTML = "<p>Efekt: +".concat(weight(SHOP_ITEMS[i].effect), " per click | Dost\u0119pne: Wyprzedane</p>");
             }
         }
         else if (SHOP_ITEMS[i].type == ShopItemType.Multiplier) {
             if (SHOP_ITEMS[i].count == 0) {
-                effect.innerHTML = "<p>Efekt: +".concat(weight(SHOP_ITEMS[i].effect), "% do wska\u017Anika | Dost\u0119pne: Wyprzedane</p>");
+                effect.innerHTML = "<p>Efekt: +".concat(weight(SHOP_ITEMS[i].effect), "% do wska\u017Anika | Dost\u0119pne: 1</p>");
             }
             else {
-                effect.innerHTML = "<p>Efekt: +".concat(weight(SHOP_ITEMS[i].effect), "% do wska\u017Anika | Dost\u0119pne: 1</p>");
+                effect.innerHTML = "<p>Efekt: +".concat(weight(SHOP_ITEMS[i].effect), "% do wska\u017Anika | Dost\u0119pne: Wyprzedane</p>");
             }
         }
         else {
@@ -213,7 +213,7 @@ function update_expensive() {
     if (STATS != null) {
         STATS.querySelector("#stat-perclick").innerHTML = "".concat(weight(local_click_power), "<br>na klikni\u0119cie");
         STATS.querySelector("#stat-idleincome").innerHTML = "".concat(weight(local_idle_income * TICKS_PER_SECOND), "<br>na sekund\u0119");
-        STATS.querySelector("#stat-multiplier").innerHTML = "".concat(local_multiplier / 100, "%");
+        STATS.querySelector("#stat-multiplier").innerHTML = "".concat(100 + ((local_multiplier / 100) - 1), "%");
     }
     else {
         alert("element o id #stats nie istnieje, a musi");

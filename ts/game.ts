@@ -132,15 +132,15 @@ function setup_shop() {
 					let effect = document.createElement("p");
 					if (SHOP_ITEMS[i].type == ShopItemType.Click) {
 						if (SHOP_ITEMS[i].count == 0) {
-							effect.innerHTML = `<p>Efekt: +${weight(SHOP_ITEMS[i].effect)} per click | Dostępne: Wyprzedane</p>`;
-						} else {
 							effect.innerHTML = `<p>Efekt: +${weight(SHOP_ITEMS[i].effect)} per click | Dostępne: 1</p>`;
+						} else {
+							effect.innerHTML = `<p>Efekt: +${weight(SHOP_ITEMS[i].effect)} per click | Dostępne: Wyprzedane</p>`;
 						}
 					} else if (SHOP_ITEMS[i].type == ShopItemType.Multiplier) {
 						if (SHOP_ITEMS[i].count == 0) {
-							effect.innerHTML = `<p>Efekt: +${weight(SHOP_ITEMS[i].effect)}% do wskaźnika | Dostępne: Wyprzedane</p>`;
-						} else {
 							effect.innerHTML = `<p>Efekt: +${weight(SHOP_ITEMS[i].effect)}% do wskaźnika | Dostępne: 1</p>`;
+						} else {
+							effect.innerHTML = `<p>Efekt: +${weight(SHOP_ITEMS[i].effect)}% do wskaźnika | Dostępne: Wyprzedane</p>`;
 						}
 					} else {
 						effect.className = "shop-card-text-effect";
@@ -250,7 +250,7 @@ function update_expensive() {
 	if (STATS != null) {
 		STATS.querySelector("#stat-perclick").innerHTML = `${weight(local_click_power)}<br>na kliknięcie`;
 		STATS.querySelector("#stat-idleincome").innerHTML = `${weight(local_idle_income * TICKS_PER_SECOND)}<br>na sekundę`;
-		STATS.querySelector("#stat-multiplier").innerHTML = `${local_multiplier / 100}%`;
+		STATS.querySelector("#stat-multiplier").innerHTML = `${100 + ((local_multiplier / 100) - 1)}%`;
 	} else {
 		alert ("element o id #stats nie istnieje, a musi");
 		return;

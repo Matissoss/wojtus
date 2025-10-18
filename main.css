@@ -62,6 +62,7 @@ body {
 	background-color: white;
 	color: black;
 	z-index: 1;
+	overflow-x: hidden;
 	overflow-y: scroll;
 }
 .shop-card {
@@ -129,4 +130,41 @@ body {
  */
 .hidden {
 	visibility: hidden;
+}
+
+/*
+ * MOBILE
+ */
+@media only screen and (max-width: 900px) {
+	#stats {
+		flex-direction: column;
+		width: 99vw;
+		height: auto;
+	}
+	#stats div {
+		width: 99vw;
+		margin: 0;
+		font-size: 125%;
+	}
+	#stats img {
+		width: 4vh;
+		height: 4vh;
+	}
+	#szeptuch {
+		width: 50vw;
+		height: 55vh;
+	}
+	#footer img {
+		width: 6vh;
+		height: 6vh;
+	}
+	#shop {
+		width: 90vw;
+		height: 70vh;
+		margin-bottom: 0;
+		margin-top: auto;
+	}
+	#szeptuch:active {
+		height: 50vh;
+	}
 }
