@@ -8,8 +8,27 @@ const REBIRTH_BUTTON: any = document.getElementById("rebirth"); // for now
 
 // == FORMATTING FUNCTIONS ==
 function weight(w: number): string {
-	// TODO
-	return `${w}ng`;
+	let i = 0;
+	while (w >= 1000) {
+		w /= 1000;
+		i++;
+	}
+	let wt = w.toFixed(2);
+	switch (i) {
+		case 1:
+			return `${wt}kg`;
+		case 2:
+			return `${wt}t`;
+		case 3:
+			return `${wt}kt`;
+		case 4:
+			return `${wt}Mt`;
+		case 5:
+			return `${wt}Gt`;
+		default:
+		case 0:
+			return `${wt}g`;
+	}
 }
 
 // == TYPES ==
@@ -58,7 +77,7 @@ const SHOP_ITEMS: ShopItem[] = [
 		type: ShopItemType.Idle,
 		base_price: 12,
 		img: "assets/idle0.png",
-		effect: 1,
+		effect: 1 / TICKS_PER_SECOND,
 		count: 0,
 	},
 	{
@@ -76,7 +95,7 @@ const SHOP_ITEMS: ShopItem[] = [
 		type: ShopItemType.Multiplier,
 		base_price: 1000,
 		img: "",
-		effect: 10,
+		effect: 0.1,
 		count: 0,
 	}
 ];
@@ -100,7 +119,7 @@ let gamestate: GameState = {
 };
 let local_click_power = 1;
 let local_idle_income = 0;
-let local_multiplier = 100;
+let local_multiplier = 1;
 
 // == FUNKCJE ==
 function setup_shop() {
@@ -130,20 +149,22 @@ function setup_shop() {
 					shop_card_text.appendChild(desc);
 					
 					let effect = document.createElement("p");
+					effect.className = "shop-card-text-effect";
 					if (SHOP_ITEMS[i].type == ShopItemType.Click) {
 						if (SHOP_ITEMS[i].count == 0) {
 							effect.innerHTML = `<p>Efekt: +${weight(SHOP_ITEMS[i].effect)} per click | Dostępne: 1</p>`;
 						} else {
 							effect.innerHTML = `<p>Efekt: +${weight(SHOP_ITEMS[i].effect)} per click | Dostępne: Wyprzedane</p>`;
+							card.className = "hidden";
 						}
 					} else if (SHOP_ITEMS[i].type == ShopItemType.Multiplier) {
 						if (SHOP_ITEMS[i].count == 0) {
-							effect.innerHTML = `<p>Efekt: +${weight(SHOP_ITEMS[i].effect)}% do wskaźnika | Dostępne: 1</p>`;
+							effect.innerHTML = `<p>Efekt: +${SHOP_ITEMS[i].effect}% do wskaźnika | Dostępne: 1</p>`;
 						} else {
-							effect.innerHTML = `<p>Efekt: +${weight(SHOP_ITEMS[i].effect)}% do wskaźnika | Dostępne: Wyprzedane</p>`;
+							effect.innerHTML = `<p>Efekt: +${SHOP_ITEMS[i].effect}% do wskaźnika | Dostępne: Wyprzedane</p>`;
+							card.className = "hidden";
 						}
 					} else {
-						effect.className = "shop-card-text-effect";
 						effect.innerHTML = `Efekt: +${weight(SHOP_ITEMS[i].effect * TICKS_PER_SECOND)} na sekundę | Posiadane: ${SHOP_ITEMS[i].count}`;
 					}
 					shop_card_text.appendChild(effect);
@@ -164,18 +185,18 @@ function setup_shop() {
 function update_shop_part(idx: number) {
 	let card = SHOP.querySelector(`#shop-card-${idx}`);
 	let button = card.querySelector(".shop-card-buy");
-	let effects = card.querySelector(".shop-card-text-effects");
+	let effects = card.querySelector(".shop-card-text-effect");
 	if (SHOP_ITEMS[idx].type == ShopItemType.Click) {
 		if (SHOP_ITEMS[idx].count == 0) {
-			effects.innerHTML = `Efekt: +${weight(SHOP_ITEMS[idx].effect)} per click | Dostępne: 1`;
+			effects.innerHTML = `Efekt: +${weight(SHOP_ITEMS[idx].effect)} per click | Dostępne: Tak`;
 		} else {
-			effects.innerHTML = `Efekt: +${weight(SHOP_ITEMS[idx].effect)} per click | Dostępne: Wyprzedane`;
+			card.className = "hidden";
 		}
 	} else if (SHOP_ITEMS[idx].type == ShopItemType.Multiplier) {
 		if (SHOP_ITEMS[idx].count == 0) {
-			effects.innerHTML = `Efekt: +${SHOP_ITEMS[idx].effect}% do wskaźnika | Dostępne: 1`;
+			effects.innerHTML = `Efekt: +${SHOP_ITEMS[idx].effect * 100}% do wskaźnika | Dostępne: Tak`;
 		} else {
-			effects.innerHTML = `Efekt: +${SHOP_ITEMS[idx].effect}% do wskaźnika | Dostępne: Wyprzedane`;
+			card.className = "hidden";
 		}
 	} else {
 		effects.innerHTML = `Efekt: +${weight(SHOP_ITEMS[idx].effect * TICKS_PER_SECOND)} na sekundę | Posiadane: ${SHOP_ITEMS[idx].count}`;
@@ -188,7 +209,7 @@ function update_shop_full() {
 	}
 }
 function get_price(base_price: number, item_count: number): number {
-	return base_price * (Math.pow(118, item_count) / 100) * (Math.pow(item_count + 1, 5) / 10);
+	return Math.round(base_price * Math.pow(1.18, item_count) * Math.pow(item_count + 1, 0.5));
 }
 function throw_warning(msg: string) {
 	if (WARNING != null) {
@@ -200,9 +221,9 @@ function throw_warning(msg: string) {
 }
 
 function multiplier(): number {
-	let toret: number = 100;
+	let toret: number = 1.00;
 	for (let i = 0; i < MULTIPLIER_ITEMS.length; i++) {
-		toret += SHOP_ITEMS[IDLE_ITEMS[i]].count * SHOP_ITEMS[IDLE_ITEMS[i]].effect;
+		toret += SHOP_ITEMS[MULTIPLIER_ITEMS[i]].count * SHOP_ITEMS[MULTIPLIER_ITEMS[i]].effect;
 	}
 	return toret;
 }
@@ -212,8 +233,8 @@ function get_idleincome(): number {
 	for (let i = 0; i < IDLE_ITEMS.length; i++) {
 		toret += SHOP_ITEMS[IDLE_ITEMS[i]].count * SHOP_ITEMS[IDLE_ITEMS[i]].effect;
 	}
-	toret *= multiplier();
-	return toret / 100;
+	toret *= local_multiplier;
+	return toret;
 }
 function get_idleincome_per_second(): number {
 	return get_idleincome() / TICKS_PER_SECOND;
@@ -223,34 +244,37 @@ function get_clickincome(): number {
 	for (let i = 0; i < CLICK_ITEMS.length; i++) {
 		toret += SHOP_ITEMS[CLICK_ITEMS[i]].count * SHOP_ITEMS[CLICK_ITEMS[i]].effect;
 	}
-	toret *= multiplier();
-	return toret / 100;
+	toret *= local_multiplier;
+	return toret;
 }
 function buy(idx: number) {
-	buyitem(SHOP_ITEMS[idx]);
+	SHOP_ITEMS[idx] = buyitem(SHOP_ITEMS[idx]);
+	update_shop_part(idx);
+	update_expensive();
 }
-function buyitem(item: ShopItem){
+function buyitem(item: ShopItem): ShopItem {
 	let price = get_price(item.base_price, item.count);
 	if (gamestate.wynik < price) {
-		throw_warning(`Nie stać cię na zakup wybranego przedmiotu! Brakuje ci ${weight(gamestate.wynik - price)}`);
-	} else if (item.count == 1 && item.type != ShopItemType.Click) {
+		throw_warning(`Nie stać cię na zakup wybranego przedmiotu! Brakuje ci ${weight(Math.abs(gamestate.wynik - price))}`);
+	} else if (item.count == 1 && (item.type == ShopItemType.Click || item.type == ShopItemType.Multiplier)) {
 		throw_warning("Ten przedmiot już został zakupiony.");
 	} else {
 		gamestate.wynik -= price;
 		item.count++;
 	}
+	return item;
 }
 
 // other stats that require get_clickincome and/or get_idleincome, which is expensive
 // to compute every tick
 function update_expensive() {
+	local_multiplier = multiplier();
 	local_click_power = get_clickincome();
 	local_idle_income = get_idleincome();
-	local_multiplier = multiplier();
 	if (STATS != null) {
 		STATS.querySelector("#stat-perclick").innerHTML = `${weight(local_click_power)}<br>na kliknięcie`;
 		STATS.querySelector("#stat-idleincome").innerHTML = `${weight(local_idle_income * TICKS_PER_SECOND)}<br>na sekundę`;
-		STATS.querySelector("#stat-multiplier").innerHTML = `${100 + ((local_multiplier / 100) - 1)}%`;
+		STATS.querySelector("#stat-multiplier").innerHTML = `${Math.round(local_multiplier * 100.0)}%`;
 	} else {
 		alert ("element o id #stats nie istnieje, a musi");
 		return;
@@ -276,7 +300,7 @@ update_expensive();
 setup_shop();
 setInterval(tick, 1000 / TICKS_PER_SECOND);
 WOJTEK.onclick = function() {
-	gamestate.wynik += (local_click_power * local_multiplier) / 100;
+	gamestate.wynik += local_click_power;
 	WOJTEK.src = "assets/szeptuch-jedzenie.png";
 	setTimeout(function() {
 		WOJTEK.src = "assets/szeptuch.png";

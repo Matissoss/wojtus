@@ -4,7 +4,27 @@ var WARNING = document.getElementById("warning");
 var SHOP = document.getElementById("shop");
 var REBIRTH_BUTTON = document.getElementById("rebirth");
 function weight(w) {
-    return "".concat(w, "ng");
+    var i = 0;
+    while (w >= 1000) {
+        w /= 1000;
+        i++;
+    }
+    var wt = w.toFixed(2);
+    switch (i) {
+        case 1:
+            return "".concat(wt, "kg");
+        case 2:
+            return "".concat(wt, "t");
+        case 3:
+            return "".concat(wt, "kt");
+        case 4:
+            return "".concat(wt, "Mt");
+        case 5:
+            return "".concat(wt, "Gt");
+        default:
+        case 0:
+            return "".concat(wt, "g");
+    }
 }
 var ShopItemType;
 (function (ShopItemType) {
@@ -20,7 +40,7 @@ var SHOP_ITEMS = [
         type: ShopItemType.Idle,
         base_price: 12,
         img: "assets/idle0.png",
-        effect: 1,
+        effect: 1 / TICKS_PER_SECOND,
         count: 0,
     },
     {
@@ -38,7 +58,7 @@ var SHOP_ITEMS = [
         type: ShopItemType.Multiplier,
         base_price: 1000,
         img: "",
-        effect: 10,
+        effect: 0.1,
         count: 0,
     }
 ];
@@ -59,7 +79,7 @@ var gamestate = {
 };
 var local_click_power = 1;
 var local_idle_income = 0;
-var local_multiplier = 100;
+var local_multiplier = 1;
 function setup_shop() {
     SHOP.innerHTML = "";
     var _loop_1 = function (i) {
@@ -86,24 +106,26 @@ function setup_shop() {
         desc.innerText = "\"".concat(SHOP_ITEMS[i].desc, "\"");
         shop_card_text.appendChild(desc);
         var effect = document.createElement("p");
+        effect.className = "shop-card-text-effect";
         if (SHOP_ITEMS[i].type == ShopItemType.Click) {
             if (SHOP_ITEMS[i].count == 0) {
                 effect.innerHTML = "<p>Efekt: +".concat(weight(SHOP_ITEMS[i].effect), " per click | Dost\u0119pne: 1</p>");
             }
             else {
                 effect.innerHTML = "<p>Efekt: +".concat(weight(SHOP_ITEMS[i].effect), " per click | Dost\u0119pne: Wyprzedane</p>");
+                card.className = "hidden";
             }
         }
         else if (SHOP_ITEMS[i].type == ShopItemType.Multiplier) {
             if (SHOP_ITEMS[i].count == 0) {
-                effect.innerHTML = "<p>Efekt: +".concat(weight(SHOP_ITEMS[i].effect), "% do wska\u017Anika | Dost\u0119pne: 1</p>");
+                effect.innerHTML = "<p>Efekt: +".concat(SHOP_ITEMS[i].effect, "% do wska\u017Anika | Dost\u0119pne: 1</p>");
             }
             else {
-                effect.innerHTML = "<p>Efekt: +".concat(weight(SHOP_ITEMS[i].effect), "% do wska\u017Anika | Dost\u0119pne: Wyprzedane</p>");
+                effect.innerHTML = "<p>Efekt: +".concat(SHOP_ITEMS[i].effect, "% do wska\u017Anika | Dost\u0119pne: Wyprzedane</p>");
+                card.className = "hidden";
             }
         }
         else {
-            effect.className = "shop-card-text-effect";
             effect.innerHTML = "Efekt: +".concat(weight(SHOP_ITEMS[i].effect * TICKS_PER_SECOND), " na sekund\u0119 | Posiadane: ").concat(SHOP_ITEMS[i].count);
         }
         shop_card_text.appendChild(effect);
@@ -125,21 +147,21 @@ function setup_shop() {
 function update_shop_part(idx) {
     var card = SHOP.querySelector("#shop-card-".concat(idx));
     var button = card.querySelector(".shop-card-buy");
-    var effects = card.querySelector(".shop-card-text-effects");
+    var effects = card.querySelector(".shop-card-text-effect");
     if (SHOP_ITEMS[idx].type == ShopItemType.Click) {
         if (SHOP_ITEMS[idx].count == 0) {
-            effects.innerHTML = "Efekt: +".concat(weight(SHOP_ITEMS[idx].effect), " per click | Dost\u0119pne: 1");
+            effects.innerHTML = "Efekt: +".concat(weight(SHOP_ITEMS[idx].effect), " per click | Dost\u0119pne: Tak");
         }
         else {
-            effects.innerHTML = "Efekt: +".concat(weight(SHOP_ITEMS[idx].effect), " per click | Dost\u0119pne: Wyprzedane");
+            card.className = "hidden";
         }
     }
     else if (SHOP_ITEMS[idx].type == ShopItemType.Multiplier) {
         if (SHOP_ITEMS[idx].count == 0) {
-            effects.innerHTML = "Efekt: +".concat(SHOP_ITEMS[idx].effect, "% do wska\u017Anika | Dost\u0119pne: 1");
+            effects.innerHTML = "Efekt: +".concat(SHOP_ITEMS[idx].effect * 100, "% do wska\u017Anika | Dost\u0119pne: Tak");
         }
         else {
-            effects.innerHTML = "Efekt: +".concat(SHOP_ITEMS[idx].effect, "% do wska\u017Anika | Dost\u0119pne: Wyprzedane");
+            card.className = "hidden";
         }
     }
     else {
@@ -153,7 +175,7 @@ function update_shop_full() {
     }
 }
 function get_price(base_price, item_count) {
-    return base_price * (Math.pow(118, item_count) / 100) * (Math.pow(item_count + 1, 5) / 10);
+    return Math.round(base_price * Math.pow(1.18, item_count) * Math.pow(item_count + 1, 0.5));
 }
 function throw_warning(msg) {
     if (WARNING != null) {
@@ -165,9 +187,9 @@ function throw_warning(msg) {
     }
 }
 function multiplier() {
-    var toret = 100;
+    var toret = 1.00;
     for (var i = 0; i < MULTIPLIER_ITEMS.length; i++) {
-        toret += SHOP_ITEMS[IDLE_ITEMS[i]].count * SHOP_ITEMS[IDLE_ITEMS[i]].effect;
+        toret += SHOP_ITEMS[MULTIPLIER_ITEMS[i]].count * SHOP_ITEMS[MULTIPLIER_ITEMS[i]].effect;
     }
     return toret;
 }
@@ -176,8 +198,8 @@ function get_idleincome() {
     for (var i = 0; i < IDLE_ITEMS.length; i++) {
         toret += SHOP_ITEMS[IDLE_ITEMS[i]].count * SHOP_ITEMS[IDLE_ITEMS[i]].effect;
     }
-    toret *= multiplier();
-    return toret / 100;
+    toret *= local_multiplier;
+    return toret;
 }
 function get_idleincome_per_second() {
     return get_idleincome() / TICKS_PER_SECOND;
@@ -187,33 +209,36 @@ function get_clickincome() {
     for (var i = 0; i < CLICK_ITEMS.length; i++) {
         toret += SHOP_ITEMS[CLICK_ITEMS[i]].count * SHOP_ITEMS[CLICK_ITEMS[i]].effect;
     }
-    toret *= multiplier();
-    return toret / 100;
+    toret *= local_multiplier;
+    return toret;
 }
 function buy(idx) {
-    buyitem(SHOP_ITEMS[idx]);
+    SHOP_ITEMS[idx] = buyitem(SHOP_ITEMS[idx]);
+    update_shop_part(idx);
+    update_expensive();
 }
 function buyitem(item) {
     var price = get_price(item.base_price, item.count);
     if (gamestate.wynik < price) {
-        throw_warning("Nie sta\u0107 ci\u0119 na zakup wybranego przedmiotu! Brakuje ci ".concat(weight(gamestate.wynik - price)));
+        throw_warning("Nie sta\u0107 ci\u0119 na zakup wybranego przedmiotu! Brakuje ci ".concat(weight(Math.abs(gamestate.wynik - price))));
     }
-    else if (item.count == 1 && item.type != ShopItemType.Click) {
+    else if (item.count == 1 && (item.type == ShopItemType.Click || item.type == ShopItemType.Multiplier)) {
         throw_warning("Ten przedmiot już został zakupiony.");
     }
     else {
         gamestate.wynik -= price;
         item.count++;
     }
+    return item;
 }
 function update_expensive() {
+    local_multiplier = multiplier();
     local_click_power = get_clickincome();
     local_idle_income = get_idleincome();
-    local_multiplier = multiplier();
     if (STATS != null) {
         STATS.querySelector("#stat-perclick").innerHTML = "".concat(weight(local_click_power), "<br>na klikni\u0119cie");
         STATS.querySelector("#stat-idleincome").innerHTML = "".concat(weight(local_idle_income * TICKS_PER_SECOND), "<br>na sekund\u0119");
-        STATS.querySelector("#stat-multiplier").innerHTML = "".concat(100 + ((local_multiplier / 100) - 1), "%");
+        STATS.querySelector("#stat-multiplier").innerHTML = "".concat(Math.round(local_multiplier * 100.0), "%");
     }
     else {
         alert("element o id #stats nie istnieje, a musi");
@@ -237,7 +262,7 @@ update_expensive();
 setup_shop();
 setInterval(tick, 1000 / TICKS_PER_SECOND);
 WOJTEK.onclick = function () {
-    gamestate.wynik += (local_click_power * local_multiplier) / 100;
+    gamestate.wynik += local_click_power;
     WOJTEK.src = "assets/szeptuch-jedzenie.png";
     setTimeout(function () {
         WOJTEK.src = "assets/szeptuch.png";
