@@ -209,6 +209,10 @@ body {
 		height: 100%;
 		width: 25vw;
 	}
+	.shop-card-buy:hover {
+		background-color: black;
+		color: white;
+	}
 }
 
 /*
@@ -271,5 +275,9 @@ body {
 	}
 	#szeptuch:active {
 		height: 50vh;
+	}
+	.shop-card-buy:hover {
+		background-color: black;
+		color: white;
 	}
 }
