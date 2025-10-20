@@ -166,6 +166,23 @@ body {
 	height: 0;
 }
 
+#warning {
+	background-color: white;
+	color: black;
+	width: 95vw;
+	height: 40vh;
+	text-align: center;
+	border: 0.1vw black solid;
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 10;
+	font-size: 200%;
+}
+
 /*
  * MOBILE horizontal
  */

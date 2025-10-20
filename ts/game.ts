@@ -85,7 +85,7 @@ const SHOP_ITEMS: ShopItem[] = [
 		desc: "Może i mały, ale przynajmniej nie musisz używać do tego swych dłoni.",
 		type: ShopItemType.Click,
 		base_price: 100,
-		img: "",
+		img: "assets/click0.png",
 		effect: 10,
 		count: 0,
 	},
@@ -94,17 +94,35 @@ const SHOP_ITEMS: ShopItem[] = [
 		desc: "W końcu nie musisz dostarczać wojtusiowi jedzenia boso niczym Cejrowski.",
 		type: ShopItemType.Multiplier,
 		base_price: 1000,
-		img: "",
+		img: "assets/multiplier0.png",
 		effect: 0.1,
+		count: 0,
+	},
+	{
+		name: "Myszka",
+		desc: "Nie mylić z myszką komputerową :D",
+		type: ShopItemType.Idle,
+		base_price: 250,
+		img: "assets/idle1.png",
+		effect: 12 / TICKS_PER_SECOND,
+		count: 0,
+	},
+	{
+		name: "Plecak",
+		desc: "Dziwny wybór, ale przynajmniej pozwala przenoszenie większej ilości jedzenia.",
+		type: ShopItemType.Click,
+		base_price: 3000,
+		img: "assets/click1.png",
+		effect: 100,
 		count: 0,
 	}
 ];
 
 const IDLE_ITEMS: number[] = [
-	0,
+	0, 3
 ];
 const CLICK_ITEMS: number[] = [
-	1,
+	1, 4
 ];
 const MULTIPLIER_ITEMS: number[] = [
 	2
@@ -312,5 +330,10 @@ button.onclick = function() {
 		SHOP.className = "hidden";
 	} else {
 		SHOP.className = "";
+	}
+}
+WARNING.onclick = function() {
+	if (WARNING.className == "") {
+		WARNING.className = "hidden";
 	}
 }
